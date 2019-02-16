@@ -8,14 +8,14 @@ public class VOMovingViolations {
 	private int Id;
 	private String location; 
 	private String ticketIssueDate;
-	private int totalpaid; 
+	private double totalpaid; 
 	private String accidenIndicator; 
 	private String description; 
 	private String violationcode; 
 	private double fineAMT;
 
 
-	public VOMovingViolations(int pId, String pLocation, String pTicketIssueDate, int pTotoalpaid, String pAccidentIndicator, String pDescription, String pViolationCode, double pfineAMT){
+	public VOMovingViolations(int pId, String pLocation, String pTicketIssueDate, double pTotoalpaid, String pAccidentIndicator, String pDescription, String pViolationCode, double pfineAMT){
 		Id=pId;
 		location=pLocation;
 		ticketIssueDate=pTicketIssueDate;
@@ -55,7 +55,7 @@ public class VOMovingViolations {
 	/**
 	 * @return totalPaid - Cuanto dinero efectivamente pagó el que recibió la infracción en USD.
 	 */
-	public int getTotalPaid() {
+	public double getTotalPaid() {
 		// TODO Auto-generated method stub
 		return totalpaid;
 	}
