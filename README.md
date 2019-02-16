@@ -1,2 +1,2 @@
-# Proyecto_1_201910_sec_2_team_1-
-Primer proyecto de Estructuras de Datos
+Juan Sebastián González Rojas 201612109
+Cristhian David Forigua Díaz  201713023
