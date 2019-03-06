@@ -321,9 +321,63 @@ public class Controller {
 		return retornar; 
 	}
 
-	public IQueue<VOMovingViolations> consultarPorPromedioFINEAMT(int val1, int val2){
-		IQueue<VOMovingViolations> retornar= new Queue<>();
-
+	//El metodo necesita optimizacion, se necesita de un orden si se quiere un recorrido eficiente.
+	public IQueue<VOMovingViolations> consultarPorPromedioFINEAMT(int val1, int val2)
+	{
+		//Queue para retornar la informacion solicitada
+		IQueue<String> retornar= new Queue<>();
+		//Queue para  verificar no repeticion
+		IQueue<String> verificar= new Queue<>();
+		//Iterador interno para comparacion de valores
+		Iterador<VOMovingViolations> iter= (Iterador<VOMovingViolations>) movingViolationsStack.iterator();
+		//Iterador externo para recorrido de todos los tipos de infracciones
+		Iterador<VOMovingViolations> iter2= (Iterador<VOMovingViolations>) movingViolationsQueue.iterator();
+		//Iterador para recorrido de tipos de infracciones realizados
+		Iterador<VOMovingViolations> iter3= (Iterador<VOMovingViolations>) verificar.iterator();
+		
+		VOMovingViolations actual=iter.next();
+		VOMovingViolations actual2=iter2.next();
+		
+		String violation=actual2.getViolationCode();
+		String currentViolation="";
+		verificar.enqueue(violation);
+		int total=0;
+		int cantidad=0; 
+		boolean repetida=false;
+		while(iter2.hasNext)//ciclo externo para recorrido de todos los tipos de infracciones
+		{
+			while(iter.hasNext())//ciclo interno para calculo de AMT promedio
+			{
+				if(actual.getViolationCode().equals(violation))
+				{
+					total+=actual.getFINEAMT();
+					cantidad++; 
+				}
+				actual=iter.next();
+			}
+			promedioInfraccionActual=total/cantidad;
+			if(promedioInfraccionActual>val1&&promedioInfraccionActual<val2)
+			{
+				retornar.enqueue(violation+promedioInfraccionActual);
+			}
+			//continuacion de recorrido externo para encontrar un nuevo violationCode
+			while(iter2.hasNext&&!repetida)
+			{
+				currentViolation=iter2.next().getViolationCode();
+				while(iter3.hasNext&&!repetida)
+				{
+					if(currentViolation.equals(iter.next().getViolationCode()))
+					{
+						repetida=true;
+						violation=currentViolation;
+					}
+				}
+				
+			}
+			repetida=false;
+			
+		}
+		
 		return retornar; 
 	}
 
