@@ -55,7 +55,7 @@ public class Controller {
 			switch(option)
 			{
 			case 1:
-				view.printMensage("Ingrese el n鷐ero del cuatrimestre que desea cargar");
+				view.printMensage("Ingrese el n煤mero del cuatrimestre que desea cargar");
 				int num=sc.nextInt();
 				this.loadMovingViolations(num);
 				System.out.println("Hay "+movingViolationsQueue.size()+" elementos en cola y "+""+movingViolationsStack.size()+" en pila");
@@ -80,7 +80,7 @@ public class Controller {
 				view.printfechaHora(lista1);
 				break; 
 			case 4:
-				view.printMensage("Ingrese el c骴igo de violaci髇");
+				view.printMensage("Ingrese el c贸digo de violaci贸n");
 				String codigo=sc.next();
 				double[] arreglo=fineAmtPromedio(codigo);
 				String mensaje="El promedio con accidentalidad es: "+arreglo[0]+" y sin accidentalidad es: "+ arreglo[1] ;
@@ -118,10 +118,10 @@ public class Controller {
 				view.printPorHora(consultarporHoraInicialyFinal(horainicio, horafinal));
 				break; 
 			case 9: 
-				view.printMensage("Ingrese el c骴igo de violaci髇");
+				view.printMensage("Ingrese el c贸digo de violaci贸n");
 				String codigo1=sc.next();
 				double[] a=consultarPromedioVariacion(codigo1);
-				view.printMensage("El FINEAMT promedio es: "+a[0]+" y su desviaci髇 estandar es: "+a[1]);
+				view.printMensage("El FINEAMT promedio es: "+a[0]+" y su desviaci贸n estandar es: "+a[1]);
 				break; 
 			case 10:
 				int[] ar=darAccidentesporHoraDia();
@@ -260,7 +260,7 @@ public class Controller {
 		return retornar; 
 	}
 
-	public IQueue<VOMovingViolations> consultarPorFechaYHora(String pFecha, String pHora){
+	public IQueue<VOMovingViolations> consultarPorFechaYHora(String pFechaInicial, String pHoraInicial, String pFechaFinal, String pHoraFinal){
 		IQueue<VOMovingViolations> retornar= new Queue<>();
 		Iterador<VOMovingViolations> iter=(Iterador<VOMovingViolations>) movingViolationsQueue.iterator();
 		VOMovingViolations actual=iter.next();
@@ -268,7 +268,8 @@ public class Controller {
 		String fecha=actual.getTicketIssueDate().split("T")[0];
 		String hora=actual.getTicketIssueDate().split("T")[1];
 		while(contador<movingViolationsQueue.size()){
-			if(fecha.equals(pFecha)&&hora.equals(pHora)){
+			if(fecha.compareTo(pFechaInicial)>=0 && hora.compareTo(pHoraInicial)>=0 && fecha.compareTo(pFechaFinal)<=0 && hora.compareTo(pHoraInicial)<0 )
+			{
 				retornar.enqueue(actual);
 			}
 			actual=iter.next();
@@ -304,12 +305,12 @@ public class Controller {
 		return retornar; 
 	}
 
-	public IStack <VOMovingViolations> consultarPorDireccion(int pDirecci髇,String FechaIn, String FechaFin){
+	public IStack <VOMovingViolations> consultarPorDireccion(int pDireccion,String FechaIn, String FechaFin){
 		IStack <VOMovingViolations> retornar= new Stack<>();
 		Iterador<VOMovingViolations> iter= (Iterador<VOMovingViolations>) movingViolationsStack.iterator();
 		VOMovingViolations actual=iter.next();
 		while(iter.hasNext()){
-			if(actual.getAdressId()==pDirecci髇){
+			if(actual.getAdressId()==pDireccion){
 				{
 					if(actual.getTicketIssueDate().split("T")[0].compareTo(FechaIn)>0&&actual.getTicketIssueDate().split("T")[0].compareTo(FechaFin)<0){
 						retornar.push(actual);
