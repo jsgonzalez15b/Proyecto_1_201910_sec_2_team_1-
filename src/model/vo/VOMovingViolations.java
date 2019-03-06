@@ -13,9 +13,10 @@ public class VOMovingViolations {
 	private String description; 
 	private String violationcode; 
 	private double fineAMT;
+	private int adressId; 
 
 
-	public VOMovingViolations(int pId, String pLocation, String pTicketIssueDate, double pTotoalpaid, String pAccidentIndicator, String pDescription, String pViolationCode, double pfineAMT){
+	public VOMovingViolations(int pId, String pLocation, String pTicketIssueDate, double pTotoalpaid, String pAccidentIndicator, String pDescription, String pViolationCode, double pfineAMT, int pAdressId){
 		Id=pId;
 		location=pLocation;
 		ticketIssueDate=pTicketIssueDate;
@@ -24,6 +25,7 @@ public class VOMovingViolations {
 		description=pDescription; 		
 		violationcode=pViolationCode; 
 		fineAMT=pfineAMT;
+		adressId=pAdressId;
 	}
 	
 	
@@ -81,6 +83,10 @@ public class VOMovingViolations {
 	
 	public double getFINEAMT() {
 		return fineAMT;
+	}
+	
+	public int getAdressId(){
+		return adressId;
 	}
 }
 

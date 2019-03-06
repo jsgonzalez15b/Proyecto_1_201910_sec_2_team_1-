@@ -73,4 +73,8 @@ public class Stack<T> implements IStack<T>{
 	public Iterator<T> iterator() {
 		return new Iterador<T>(primero);
 	}
+	
+	public Nodo<T> darPrimero(){
+		return primero;
+	}
 }
