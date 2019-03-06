@@ -14,9 +14,11 @@ public class VOMovingViolations {
 	private String violationcode; 
 	private double fineAMT;
 	private int adressId; 
+	private double penalty1; 
+	private double penalty2; 
 
 
-	public VOMovingViolations(int pId, String pLocation, String pTicketIssueDate, double pTotoalpaid, String pAccidentIndicator, String pDescription, String pViolationCode, double pfineAMT, int pAdressId){
+	public VOMovingViolations(int pId, String pLocation, String pTicketIssueDate, double pTotoalpaid, String pAccidentIndicator, String pDescription, String pViolationCode, double pfineAMT, int pAdressId, double pPenalty1, double pPenalty2){
 		Id=pId;
 		location=pLocation;
 		ticketIssueDate=pTicketIssueDate;
@@ -26,6 +28,8 @@ public class VOMovingViolations {
 		violationcode=pViolationCode; 
 		fineAMT=pfineAMT;
 		adressId=pAdressId;
+		penalty1=pPenalty1;
+		penalty2=pPenalty2;
 	}
 	
 	
@@ -87,6 +91,27 @@ public class VOMovingViolations {
 	
 	public int getAdressId(){
 		return adressId;
+	}
+	
+	public double getPenalty1() {
+		return penalty1; 
+	}
+	
+	public double getPenalty2() {
+		return penalty2; 
+	}
+
+	public int compareTo(VOMovingViolations otro, int pModo) { 
+		if(pModo==1) {
+			//Comparo por violationdesc
+		return getViolationDescription().compareTo(otro.getViolationDescription())==0?0:(getViolationDescription().compareTo(otro.getViolationDescription())<0?-1:1);
+				
+		}else if(pModo==2) {
+			//Comparo fecha de infracción
+			return getTicketIssueDate().split("T")[0].compareTo(otro.getTicketIssueDate().split("T")[0])==0?0:(this.ticketIssueDate.split("T")[0].compareTo(otro.getTicketIssueDate().split("T")[0])<0?-1:1);
+		}else {
+			return 0; 
+		}
 	}
 }
 

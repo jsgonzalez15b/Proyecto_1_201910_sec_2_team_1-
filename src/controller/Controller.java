@@ -3,6 +3,7 @@ package controller;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 import com.opencsv.CSVReader;
@@ -58,6 +59,7 @@ public class Controller {
 				int num=sc.nextInt();
 				this.loadMovingViolations(num);
 				System.out.println("Hay "+movingViolationsQueue.size()+" elementos en cola y "+""+movingViolationsStack.size()+" en pila");
+
 				break;
 
 			case 2:
@@ -97,23 +99,39 @@ public class Controller {
 				String entrada=sc.next();
 				int in=Integer.parseInt(entrada.split(",")[0]);
 				int fin2=Integer.parseInt(entrada.split(",")[1]);
-				
+
 				break; 
 			case 7:
 				view.printMensage("Ingrese el rango del valor total pagado en formato: val1,val2");
 				String linea1=sc.next();
 				int val1=Integer.parseInt(linea1.split(",")[0]);
 				int val2=Integer.parseInt(linea1.split(",")[1]);
-				view.printTotalPagado(consultarPorTotalPagado(val1, val2));
+				view.printMensage("Ingrese como desea obserbar la lista: 1.Ascendentemente 2.Descendentemente");
+				int orden=sc.nextInt();
+				view.printTotalPagado(consultarPorTotalPagado(val1, val2, orden));
 				break; 
 			case 8: 
 				view.printMensage("Ingrese la hora inicial y final en formato: HH:MM:SS.000Z,HH:MM:SS.000Z");
 				String linea11=sc.next();
 				String horainicio=linea11.split(",")[0];
 				String horafinal=linea11.split(",")[1];
-				
+				view.printPorHora(consultarporHoraInicialyFinal(horainicio, horafinal));
 				break; 
-			case 9:	
+			case 9: 
+				view.printMensage("Ingrese el código de violación");
+				String codigo1=sc.next();
+				double[] a=consultarPromedioVariacion(codigo1);
+				view.printMensage("El FINEAMT promedio es: "+a[0]+" y su desviación estandar es: "+a[1]);
+				break; 
+			case 10:
+				int[] ar=darAccidentesporHoraDia();
+				System.out.println("a");
+				view.printASCII(ar);
+				break; 
+			case 11:
+				view.printASCIIMeses(deudaMeses());
+				break; 
+			case 12:	
 				fin=true;
 				sc.close();
 				break;
@@ -148,27 +166,31 @@ public class Controller {
 		}else{
 			inicio=8; 
 		}
-		for(int i=inicio; i<inicio+4;i++){
-			try{
-				reader=new CSVReader(new FileReader(nombresArchivos[i]));
-				String[] linea=reader.readNext();
+		for(int i=inicio; i<inicio+4;i++){		try{
+			reader=new CSVReader(new FileReader(nombresArchivos[i]));
+			String[] linea=reader.readNext();
+			linea=reader.readNext();
+			while(linea!=null){
+				int tres=linea[3].equals("")?0:Integer.parseInt(linea[3]);
+				double diez=linea[10].equals("")?0: Double.parseDouble(linea[10]);
+				double once=linea[11].equals("")?0:Double.parseDouble(linea[11]);
+				movingViolationsStack.push(new VOMovingViolations(Integer.parseInt(linea[0]), linea[2], linea[13], Double.parseDouble(linea[9]), linea[12], linea[15], linea[14], Double.parseDouble(linea[8]),tres,diez,once));
+				movingViolationsQueue.enqueue(new VOMovingViolations(Integer.parseInt(linea[0]), linea[2], linea[13], Double.parseDouble(linea[9]), linea[12], linea[15], linea[14], Double.parseDouble(linea[8]),tres,diez, once));
+
+
 				linea=reader.readNext();
-				while(linea!=null){
-					movingViolationsStack.push(new VOMovingViolations(Integer.parseInt(linea[0]), linea[2], linea[13], Double.parseDouble(linea[9]), linea[12], linea[15], linea[14], Double.parseDouble(linea[8]),Integer.parseInt(linea[3])));
-					movingViolationsQueue.enqueue(new VOMovingViolations(Integer.parseInt(linea[0]), linea[2], linea[13], Double.parseDouble(linea[9]), linea[12], linea[15], linea[14], Double.parseDouble(linea[8]),Integer.parseInt(linea[3])));
-					linea=reader.readNext();
-				}
-			}catch(Exception e){
-				e.printStackTrace();
-			}finally{
-				if(reader!=null){
-					try{
-						reader.close();
-					}catch(IOException e){
-						e.printStackTrace();	
-					}
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}finally{
+			if(reader!=null){
+				try{
+					reader.close();
+				}catch(IOException e){
+					e.printStackTrace();	
 				}
 			}
+		}
 		}
 	}
 
@@ -297,23 +319,198 @@ public class Controller {
 		}
 		return retornar; 
 	}
-	
+
 	public IQueue<VOMovingViolations> consultarPorPromedioFINEAMT(int val1, int val2){
 		IQueue<VOMovingViolations> retornar= new Queue<>();
-		
+
 		return retornar; 
 	}
-	
-	public  IStack <VOMovingViolations> consultarPorTotalPagado(int val1, int val2){
-		 IStack <VOMovingViolations> retornar= new Stack <VOMovingViolations>();
-		 Iterador<VOMovingViolations> iter= (Iterador<VOMovingViolations>) movingViolationsStack.iterator();
-		 VOMovingViolations actual= iter.next();
-		 while(iter.hasNext()){
-			 if(actual.getTotalPaid()>=val1 && actual.getTotalPaid()<=val2){
-				 retornar.push(actual);
-			 }
-			 actual=iter.next();
-		 }
-		 return retornar; 
+
+	public  IStack <VOMovingViolations> consultarPorTotalPagado(int val1, int val2, int pOrden){
+		IStack <VOMovingViolations> retornar= new Stack <VOMovingViolations>();
+		Iterador<VOMovingViolations> iter= (Iterador<VOMovingViolations>) movingViolationsStack.iterator();
+		VOMovingViolations actual= iter.next();
+		while(iter.hasNext()){
+			if(actual.getTotalPaid()>=val1 && actual.getTotalPaid()<=val2){
+				retornar.push(actual);
+			}
+			actual=iter.next();
+		}
+		VOMovingViolations[] ordenar= new VOMovingViolations[retornar.size()];
+		for(int i=0; i<retornar.size();i++) {
+			ordenar[i]=retornar.pop();
+		}
+		ordenarMergeSort(ordenar, 2);
+		for(int j=0;j<ordenar.length; j++) {
+			retornar.push(ordenar[j]);
+		}
+		if(pOrden==2) {
+			return retornar;
+		}
+		else {
+			IStack <VOMovingViolations> retornarasc=new Stack<>();
+			for(int k=0; k<retornar.size();k++) {
+				retornarasc.push(retornar.pop());
+			}
+			return retornarasc; 
+		}
 	}
+	public IQueue<VOMovingViolations> consultarporHoraInicialyFinal(String fech1, String fech2){
+		IQueue<VOMovingViolations> retornar= new Queue<>();
+		int contador=0; 
+		Iterador<VOMovingViolations> iter= (Iterador<VOMovingViolations>) movingViolationsQueue.iterator();
+		VOMovingViolations actual=iter.next();
+		while (contador<movingViolationsQueue.size()) {
+			if(actual.getTicketIssueDate().split("T")[0].compareTo(fech1)>0&&actual.getTicketIssueDate().split("T")[1].compareTo(fech2)<0) {
+				retornar.enqueue(actual);
+			}
+			contador++;
+			actual=iter.next();
+		}
+		VOMovingViolations[] ordenar= new VOMovingViolations[retornar.size()];
+		for(int i=0; i<retornar.size();i++) {
+			ordenar[i]=retornar.dequeue();
+		}
+		ordenarMergeSort(ordenar, 1);
+		for(int j=0;j<ordenar.length; j++) {
+			retornar.enqueue(ordenar[j]);
+		}
+		return retornar; 
+	}
+
+	public double[] consultarPromedioVariacion(String pCodigo) {
+		double[] retornar= new double[2];
+		Iterador<VOMovingViolations> iter= (Iterador<VOMovingViolations>) movingViolationsStack.iterator();
+		VOMovingViolations actual=iter.next();
+		int sum=0;
+		int cantidad=0;
+		ArrayList<VOMovingViolations> arreglo=new ArrayList<>();
+		while(iter.hasNext()) {
+			if(actual.getViolationCode().equals(pCodigo)) {
+				cantidad++; 
+				sum+=actual.getFINEAMT();
+				arreglo.add(actual);
+			}
+			actual=iter.next();
+		}
+		double promedio=sum/cantidad;
+		retornar[0]=promedio;
+		int sum2=0; 
+		for(int i=0; i<arreglo.size(); i++) {
+			sum2+=Math.pow(arreglo.get(i).getFINEAMT()-promedio, 2);
+		}
+		retornar[1]=Math.sqrt(sum2/arreglo.size());
+		return retornar; 
+	}
+
+
+	public int[] darAccidentesporHoraDia() {
+		int[] retornar= new int[24]; 
+		for(int i=0; i<retornar.length;i++) {
+			Iterador<VOMovingViolations> iter= (Iterador<VOMovingViolations>) movingViolationsStack.iterator();
+			VOMovingViolations actual= iter.next();
+			int sum=0;
+			while(iter.hasNext()) {
+				int hora=Integer.parseInt(actual.getTicketIssueDate().split("T")[1].split(":")[0]);
+				if(hora==i&& actual.getAccidentIndicator().equals("Yes")) {
+					sum++; 
+				}
+				actual=iter.next();
+			}
+			retornar[i]=sum; 
+			System.out.println(i+"");
+		}
+		return retornar; 
+	}
+
+	public double darDeudaTotal(String fecha1, String fecha2) {
+		double sum=0;
+		Iterador<VOMovingViolations> iter= (Iterador<VOMovingViolations>) movingViolationsStack.iterator();
+		VOMovingViolations actual= iter.next();
+		while(iter.hasNext()) {
+			if(!(actual.getTicketIssueDate().split("T")[0].compareTo(fecha1)<0)&&!(actual.getTicketIssueDate().split("T")[0].compareTo(fecha2)>0)) {
+				sum+=actual.getFINEAMT()+actual.getTotalPaid()+actual.getPenalty1()+actual.getPenalty2();
+				actual=iter.next();
+			}
+		}
+		return sum; 
+	}
+
+	public double[] deudaMeses() {
+		double[] a=new double[4];
+		int mes =Integer.parseInt(movingViolationsStack.darPrimero().darElemento().getTicketIssueDate().split("T")[0].split("-")[1]);
+		int inicio=(mes==1||mes==2||mes==3||mes==4)?1:((mes==5||mes==6||mes==7||mes==8)?5:9);
+		for(int i=inicio; i<4;i++) {
+			a[i]=darDeudaTotal("2018-"+(i)+"-01", "2018-"+(i)+"-31");		
+		}
+		return a; 
+	}
+
+	public static void merge(VOMovingViolations[] arreglo, int l, int m, int r, int pModo) {
+		int j; 
+		int i; 
+		int n1=m-l+1;
+		int n2=r-m;
+		VOMovingViolations[] izquierdo=new VOMovingViolations[n1];
+		VOMovingViolations[] derecho=new VOMovingViolations[n2];
+		for(i=0;i<n1;i++) {
+			izquierdo[i]=arreglo[l+i];
+		}
+		for(j=0; j<n2;j++) {
+			derecho[j]=arreglo[m+1+j];
+		}
+		i=0; 
+		j=0;
+		int k =l;
+		while(i<n1&&j<n2) {
+			if(izquierdo[i].compareTo(derecho[j],pModo)<0) {
+				arreglo[k]=izquierdo[i];
+				i++;
+			}else {
+				arreglo[k]=derecho[j];
+				j++;
+			}
+			k++;
+		}
+		while(i<n1) {
+			arreglo[k]=izquierdo[i];
+			i++;
+			k++;
+		}
+		while(i<n2) {
+			arreglo[k]=derecho[j];
+			j++;
+			k++;
+		}
+
+	}
+
+	public static void mergeSort(VOMovingViolations[]datos, int izq, int der, int pModo) {
+		if(izq<der) {
+			int m=izq+(der-izq)/2;
+			mergeSort(datos,izq,m,pModo);
+			mergeSort(datos, m+1, der,pModo);
+			merge(datos, izq, m, der, pModo);
+		}
+	}
+
+	public static void ordenarMergeSort( VOMovingViolations[ ] datos, int pModo ) {
+		mergeSort(datos, 0, datos.length-1, pModo);
+	}
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
